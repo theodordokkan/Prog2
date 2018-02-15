@@ -115,4 +115,25 @@ public class State {
         }
     }
 
+    
+    public void update (String role, int fx, int fy, int tx, int ty) {
+    	if (role.equals("black")) {
+    		int index = blackpawns.indexOf(new Point(fx, fy));
+    		blackpawns.remove(index);
+    		blackpawns.add(new Point (tx, ty));
+    	}
+    	else {
+    		int index = whitepawns.indexOf(new Point(fx, fy));
+    		whitepawns.remove(index);
+    		whitepawns.add(new Point (tx, ty));
+    	}
+    }
+    
+    public State clone () {
+    	return new State(activerole, new ArrayList<Point>(whitepawns)
+    			, new ArrayList<Point>(blackpawns));
+    }
+
+	
+    
 }

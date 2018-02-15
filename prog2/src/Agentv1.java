@@ -53,7 +53,7 @@ public class Agentv1 implements Agent {
     		}
    			System.out.println(roleOfLastPlayer + " moved from " + x1 + "," + y1 + " to " + x2 + "," + y2);
     		// TODO: 1. update your internal world model according to the action that was just executed
-    		
+    		currentState.update(roleOfLastPlayer, x1, y1, x2, y2);
     	}
 		
     	// update turn (above that line it myTurn is still for the previous state)
@@ -72,9 +72,67 @@ public class Agentv1 implements Agent {
 		}
 	}
 
+    public Move alfaBetaSearch (State state , int alfa, int beta) {
+    	int v = Integer.MIN_VALUE;
+    	int value;
+    	Move bestMove = null;
+    	for (Move move : state.getLegalMoves(role)) {
+    		value = minValue(getNext(state, move), Integer.MIN_VALUE, Integer.MAX_VALUE);
+    		if (value > v) {
+    			v = value;}
+    			bestMove = move;
+    			if ( v >= beta) {
+    				alfa = Math.max(alfa, v);
+    				
+    			}
+    			
+    		}
+    		return bestMove;
+    }
+    
+	private int minValue(State state, int alfa, int beta) {
+    	int v = Integer.MAX_VALUE;
+    	int value;
+    	for (Move move : state.getLegalMoves(role)) {
+    		value = maxValue(getNext(state, move), Integer.MIN_VALUE, Integer.MAX_VALUE);
+    		if (value < v) {
+    			v = value;}
+    		
+    			if ( v >= alfa) {
+    				beta = Math.max(beta, v);
+    				
+    			}
+    			
+    		}
+    		return v;
+		
+	}
+
+	private int maxValue(State state, int alfa, int beta) {
+		int v = Integer.MIN_VALUE;
+    	int value;
+    	for (Move move : state.getLegalMoves(role)) {
+    		value = minValue(getNext(state, move), Integer.MIN_VALUE, Integer.MAX_VALUE);
+    		if (value > v) {
+    			v = value;}
+    			if ( v >= beta) {
+    				alfa = Math.max(alfa, v);
+    				
+    			}
+    			
+    		}
+    		return v;
+	}
+
 	// is called when the game is over or the match is aborted
 	@Override
 	public void cleanup() {
 		// TODO: cleanup so that the agent is ready for the next match
+	}
+	
+	public State getNext(State state, Move move) {
+		State newState = (State) state.clone();
+		newState.update(state.activerole, move.fx, move.fy, move.tx, move.ty);
+		return newState;
 	}
 }
