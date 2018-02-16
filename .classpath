@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="prog2/src"/>
+	<classpathentry kind="lib" path="prog2/gamecontroller-cli.jar"/>
+	<classpathentry kind="lib" path="prog2/gamecontroller-gui.jar"/>
+	<classpathentry kind="lib" path="prog2/kiosk.jar"/>
+	<classpathentry kind="output" path="prog2/bin"/>
+</classpath>
