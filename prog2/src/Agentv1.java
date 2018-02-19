@@ -101,7 +101,7 @@ public class Agentv1 implements Agent {
 
 		for (Move move : state.getLegalMoves(state.activerole)) {
 			// System.out.println(move);
-			value = minValue(getNext(state, move), 0, 100, timeout, d);
+			value = 0-minValue(getNext(state, move), -100, 0, timeout, d);
 			if (value > bestValue) {
 				bestValue = value;
 				bestMove = move;
@@ -113,9 +113,10 @@ public class Agentv1 implements Agent {
 
 	@SuppressWarnings("unchecked")
 	private int minValue(State state, int alfa, int beta, long timeout, int d) throws TimeOutException {
-		int bestValue = Integer.MAX_VALUE;
+		int bestValue = Integer.MIN_VALUE;
 		int value;
 		nStates++;
+		
 		if (System.currentTimeMillis() + 100 >= timeout)
 			throw new TimeOutException();
 
@@ -126,20 +127,26 @@ public class Agentv1 implements Agent {
 			bottomed = true;
 			return state.evalState(role);
 		}
+		
+		
 		List<Move> legalMoves = state.getLegalMoves(state.activerole);
 		for (Move move : legalMoves) {
 			move.value = getNext(state, move).evalState(role);
 		}
 		Collections.sort(legalMoves);
 
+		
 		for (Move move : state.getLegalMoves(state.activerole)) {
 			// System.out.println(move);
-			value = maxValue(getNext(state, move), alfa, beta, timeout, d - 1);
-			bestValue = Math.min(value, bestValue);
+			value = 0-maxValue(getNext(state, move), 0-beta, 0-alfa, timeout, d - 1);
+			bestValue = Math.max(value, bestValue);
 
-			if (bestValue <= alfa)
-				return bestValue;
-			beta = Math.min(beta, bestValue);
+			if (bestValue > alfa) {
+				alfa = bestValue;
+				if (alfa >= beta)
+					break;
+			}
+				
 		}
 		return bestValue;
 
@@ -150,6 +157,8 @@ public class Agentv1 implements Agent {
 		int bestValue = Integer.MIN_VALUE;
 		int value;
 		nStates++;
+		
+		
 		if (System.currentTimeMillis() + 100 >= timeout)
 			throw new TimeOutException();
 
@@ -160,21 +169,29 @@ public class Agentv1 implements Agent {
 			bottomed = true;
 			return state.evalState(role);
 		}
+		
+		
+		
 		List<Move> legalMoves = state.getLegalMoves(state.activerole);
 		for (Move move : legalMoves) {
 			move.value = getNext(state, move).evalState(role);
 		}
 		Collections.sort(legalMoves);
 
+		
+		
 		for (Move move : legalMoves) {
 			// System.out.println(move);
-			value = minValue(getNext(state, move), alfa, beta, timeout, d - 1);
+			value = 0-minValue(getNext(state, move), 0-beta, 0-alfa, timeout, d - 1);
 			bestValue = Math.max(value, bestValue);
-			if (bestValue >= beta)
-				return bestValue;
-			alfa = Math.max(alfa, bestValue);
+			if (bestValue > alfa) {
+				alfa = bestValue;
+				if (alfa >= beta)
+					break;
+			}
 
 		}
+		
 		return bestValue;
 	}
 

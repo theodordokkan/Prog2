@@ -8,14 +8,14 @@ import java.util.Set;
 
 public class State {
 
-	Set<Point> whitepawns ;// Do not really need the last part
-	Set<Point> blackpawns ; // Do not really need the last part
+	Set<Point> whitepawns;// Do not really need the last part
+	Set<Point> blackpawns; // Do not really need the last part
 
 	public String activerole;
 	public int width, height;
 
 	public State(String activerole, Set<Point> whitepawns, Set<Point> blackpawns, int width, int height) {
-	
+
 		this.activerole = activerole;
 		this.whitepawns = whitepawns;
 		this.blackpawns = blackpawns;
@@ -101,23 +101,23 @@ public class State {
 
 			for (Point position : whitepawns) { // if whitepawns reach top
 				if (position.y == height) {
-					return 100 * whiteMulti;
+					return 100*whiteMulti;
 				}
 
 			}
 			for (Point position : blackpawns) { // if blackpanws reach bottom
 				if (position.y == 1) {
-					return 100 * blackMulti;
+					return 100*blackMulti;
 				}
 
 			}
 			return 0; // draw return
 		} else {
-			int nBlack, nWhite,factor;
+			int nBlack, nWhite, factor;
 			nBlack = blackpawns.size();
 			nWhite = whitepawns.size();
-			factor = 90/height;
-			
+			factor = 90 / height;
+
 			int max = 0;
 			int min = height;
 			for (Point position : whitepawns) { // if whitepawns reach top
@@ -133,10 +133,15 @@ public class State {
 				}
 
 			}
-			int bdist =(min - 1);
-			int wdist =(height - max);
-			//return (nBlack*blackMulti + nWhite*whiteMulti)+(((height-bdist)*factor)*blackMulti+((height-wdist)*factor)*whiteMulti);
-			return (nWhite-nBlack)+(((height-wdist)*factor)-((height-bdist)*factor));
+			int bdist = (min - 1);
+			int wdist = (height - max);
+
+			if (role.equals("black")) {
+				return (nBlack - nWhite) + (((height - bdist) * factor) - ((height - wdist) * factor));
+			} else {
+				return (nWhite - nBlack) + (((height - wdist) * factor) - ((height - bdist) * factor));
+			}
+
 		}
 	}
 
@@ -151,11 +156,11 @@ public class State {
 			whitepawns.add(new Point(move.tx, move.ty));
 			activerole = "black";
 		}
-		
+
 	}
 
 	public State clone() {
-		return new State(activerole, new HashSet<Point>(whitepawns), new HashSet<Point>(blackpawns),width,height);
+		return new State(activerole, new HashSet<Point>(whitepawns), new HashSet<Point>(blackpawns), width, height);
 	}
 
 }
