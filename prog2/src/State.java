@@ -2,26 +2,31 @@
 import java.awt.Point;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class State {
 
-	List<Point> whitepawns = new ArrayList<Point>(); // Do not really need the last part
-	List<Point> blackpawns = new ArrayList<Point>(); // Do not really need the last part
+	Set<Point> whitepawns ;// Do not really need the last part
+	Set<Point> blackpawns ; // Do not really need the last part
 
 	public String activerole;
 	public int width, height;
 
-	public State(String activerole, List<Point> whitepawns, List<Point> blackpawns) {
+	public State(String activerole, Set<Point> whitepawns, Set<Point> blackpawns, int width, int height) {
+	
 		this.activerole = activerole;
 		this.whitepawns = whitepawns;
 		this.blackpawns = blackpawns;
+		this.width = width;
+		this.height = height;
 
 	}
 
 	public List<Move> getLegalMoves(String role) {
-		List<Point> rolepawns;
-		List<Point> opponentpawns;
+		Set<Point> rolepawns;
+		Set<Point> opponentpawns;
 		List<Move> legal = new ArrayList<>();
 
 		int direction;
@@ -30,7 +35,7 @@ public class State {
 			rolepawns = whitepawns;
 			direction = 1;
 			opponentpawns = blackpawns;
-			
+
 			for (Point position : whitepawns) { // if whitepawns reach top
 				if (position.y == height) {
 					return new ArrayList<>();
@@ -42,7 +47,7 @@ public class State {
 			rolepawns = blackpawns;
 			direction = -1;
 			opponentpawns = whitepawns;
-			
+
 			for (Point position : blackpawns) { // if blackpanws reach bottom
 				if (position.y == 1) {
 					return new ArrayList<>();
@@ -50,7 +55,7 @@ public class State {
 
 			}
 		}
-		
+
 		for (Point position : rolepawns) {
 			Point portside = new Point(position.x - 1, position.y + (direction)); // left
 			Point middle = new Point(position.x, position.y + (direction)); // move infront
@@ -85,22 +90,34 @@ public class State {
 
 	}
 
-	public int evalState() {
+	public int evalState(String role) {
+		int whiteMulti = 1, blackMulti = 1;
+		if (role.equals("black")) {
+			whiteMulti = -1;
+		} else {
+			blackMulti = -1;
+		}
 		if (isTerminal()) {
+
 			for (Point position : whitepawns) { // if whitepawns reach top
 				if (position.y == height) {
-					return 100;
+					return 100 * whiteMulti;
 				}
 
 			}
 			for (Point position : blackpawns) { // if blackpanws reach bottom
 				if (position.y == 1) {
-					return -100;
+					return 100 * blackMulti;
 				}
 
 			}
 			return 0; // draw return
 		} else {
+			int nBlack, nWhite,factor;
+			nBlack = blackpawns.size();
+			nWhite = whitepawns.size();
+			factor = 90/height;
+			
 			int max = 0;
 			int min = height;
 			for (Point position : whitepawns) { // if whitepawns reach top
@@ -116,27 +133,29 @@ public class State {
 				}
 
 			}
-			return (min - 1) - (height - max);
+			int bdist =(min - 1);
+			int wdist =(height - max);
+			//return (nBlack*blackMulti + nWhite*whiteMulti)+(((height-bdist)*factor)*blackMulti+((height-wdist)*factor)*whiteMulti);
+			return (nWhite-nBlack)+(((height-wdist)*factor)-((height-bdist)*factor));
 		}
 	}
 
 	public void update(String role, Move move) {
 
 		if (role.equals("black")) {
-			int index = blackpawns.indexOf(new Point(move.fx, move.fy));
-			blackpawns.remove(index);
+			blackpawns.remove(new Point(move.fx, move.fy));
 			blackpawns.add(new Point(move.tx, move.ty));
 			activerole = "white";
 		} else {
-			int index = whitepawns.indexOf(new Point(move.fx, move.fy));
-			whitepawns.remove(index);
+			whitepawns.remove(new Point(move.fx, move.fy));
 			whitepawns.add(new Point(move.tx, move.ty));
 			activerole = "black";
 		}
+		
 	}
 
 	public State clone() {
-		return new State(activerole, new ArrayList<Point>(whitepawns), new ArrayList<Point>(blackpawns));
+		return new State(activerole, new HashSet<Point>(whitepawns), new HashSet<Point>(blackpawns),width,height);
 	}
 
 }

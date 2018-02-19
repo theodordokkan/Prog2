@@ -1,7 +1,10 @@
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class Agentv1 implements Agent {
 
@@ -28,8 +31,8 @@ public class Agentv1 implements Agent {
 		this.height = height;
 
 		// TODO: add your own initialization code here
-		List<Point> whitepawns = new ArrayList<Point>();
-		List<Point> blackpawns = new ArrayList<Point>();
+		Set<Point> whitepawns = new HashSet<Point>();
+		Set<Point> blackpawns = new HashSet<Point>();
 
 		for (int i = 1; i <= width; i++) {
 			whitepawns.add(new Point(i, 1));
@@ -38,7 +41,7 @@ public class Agentv1 implements Agent {
 			blackpawns.add(new Point(i, height - 1));
 		}
 
-		currentState = new State("white", whitepawns, blackpawns);
+		currentState = new State("white", whitepawns, blackpawns,width,height);
 
 	}
 
@@ -70,7 +73,8 @@ public class Agentv1 implements Agent {
 
 				System.out.println("starting the search at depth 1");
 				for (int d = 1; d < 100; d++) {
-					nStates=0;
+					nStates = 0;
+					bottomed = false;
 					System.out.println("search at depth " + d);
 					Long startLoopTime = System.currentTimeMillis();
 					bestMove = alfaBetaSearch(currentState, timeout, d);
@@ -83,8 +87,7 @@ public class Agentv1 implements Agent {
 			} catch (TimeOutException e) {
 				System.out.println("no more time, Get out, out, out .... ");
 			}
-			
-			
+
 			return "(move " + bestMove.fx + " " + bestMove.fy + " " + bestMove.tx + " " + bestMove.ty + ")";
 		} else {
 			return "noop";
@@ -95,8 +98,9 @@ public class Agentv1 implements Agent {
 		int bestValue = Integer.MIN_VALUE;
 		int value;
 		Move bestMove = null;
+
 		for (Move move : state.getLegalMoves(state.activerole)) {
-		//	System.out.println(move);
+			// System.out.println(move);
 			value = minValue(getNext(state, move), 0, 100, timeout, d);
 			if (value > bestValue) {
 				bestValue = value;
@@ -107,6 +111,7 @@ public class Agentv1 implements Agent {
 		return bestMove;
 	}
 
+	@SuppressWarnings("unchecked")
 	private int minValue(State state, int alfa, int beta, long timeout, int d) throws TimeOutException {
 		int bestValue = Integer.MAX_VALUE;
 		int value;
@@ -115,27 +120,32 @@ public class Agentv1 implements Agent {
 			throw new TimeOutException();
 
 		if (state.isTerminal())
-			return state.evalState();
+			return state.evalState(role);
 
 		if (d == 0) {
 			bottomed = true;
-			return 42;
+			return state.evalState(role);
 		}
+		List<Move> legalMoves = state.getLegalMoves(state.activerole);
+		for (Move move : legalMoves) {
+			move.value = getNext(state, move).evalState(role);
+		}
+		Collections.sort(legalMoves);
 
 		for (Move move : state.getLegalMoves(state.activerole)) {
-		//	System.out.println(move);
+			// System.out.println(move);
 			value = maxValue(getNext(state, move), alfa, beta, timeout, d - 1);
 			bestValue = Math.min(value, bestValue);
 
 			if (bestValue <= alfa)
 				return bestValue;
 			beta = Math.min(beta, bestValue);
-
 		}
 		return bestValue;
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private int maxValue(State state, int alfa, int beta, long timeout, int d) throws TimeOutException {
 		int bestValue = Integer.MIN_VALUE;
 		int value;
@@ -144,18 +154,22 @@ public class Agentv1 implements Agent {
 			throw new TimeOutException();
 
 		if (state.isTerminal())
-			return state.evalState();
+			return state.evalState(role);
 
 		if (d == 0) {
 			bottomed = true;
-			return 42;
+			return state.evalState(role);
 		}
+		List<Move> legalMoves = state.getLegalMoves(state.activerole);
+		for (Move move : legalMoves) {
+			move.value = getNext(state, move).evalState(role);
+		}
+		Collections.sort(legalMoves);
 
-		for (Move move : state.getLegalMoves(state.activerole)) {
-			//System.out.println(move);
+		for (Move move : legalMoves) {
+			// System.out.println(move);
 			value = minValue(getNext(state, move), alfa, beta, timeout, d - 1);
 			bestValue = Math.max(value, bestValue);
-
 			if (bestValue >= beta)
 				return bestValue;
 			alfa = Math.max(alfa, bestValue);
