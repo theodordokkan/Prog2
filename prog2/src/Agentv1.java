@@ -134,6 +134,7 @@ public class Agentv1 implements Agent {
 			move.value = getNext(state, move).evalState(role);
 		}
 		Collections.sort(legalMoves);
+		Collections.reverse(legalMoves);
 
 		
 		for (Move move : state.getLegalMoves(state.activerole)) {
@@ -177,7 +178,7 @@ public class Agentv1 implements Agent {
 			move.value = getNext(state, move).evalState(role);
 		}
 		Collections.sort(legalMoves);
-
+		Collections.reverse(legalMoves);
 		
 		
 		for (Move move : legalMoves) {

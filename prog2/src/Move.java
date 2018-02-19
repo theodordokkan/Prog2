@@ -13,7 +13,7 @@ public class Move implements Comparable {
 	}
 
 	public String toString() {
-		return String.format("Move from %d:%d  to %d:%d", fx, fy, tx, ty);
+		return String.format("Move from %d:%d  to %d:%d value %d", fx, fy, tx, ty,value);
 	}
 
 	@Override
